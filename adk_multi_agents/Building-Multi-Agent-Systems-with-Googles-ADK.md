@@ -180,8 +180,47 @@ print(f"Agent Path: {support_path}")
 Sample output:
 ```
 Query: I can't access my email account, it says my password is incorrect, help to give advice
+Response: I'm sorry to hear you're having trouble accessing your email account. When you receive a "password incorrect" error, here are some steps you can take to resolve this issue:
+
+1. Double-check your password entry:
+   - Make sure Caps Lock is off
+   - Verify you're not making typos
+   - Ensure there are no extra spaces before or after your password
+
+2. Try resetting your password:
+   - Look for the "Forgot password" link on the login page
+   - Follow the password recovery process, which typically involves:
+     - Verifying your identity through a secondary email or phone number
+     - Answering security questions
+     - Following a password reset link sent to your recovery email
+
+3. Check if you recently changed your password and are trying to use an old one
+
+4. Ensure you're on the correct login page for your email provider (watch out for phishing sites)
+
+5. Clear your browser cache and cookies, then try again
+
+6. Try accessing your account from a different browser or device
+
+7. If you use a password manager, make sure it has your most current password
+
+8. Check if your account might be locked due to too many failed login attempts
+
+If you continue to have problems after trying these steps, contact your email provider's customer support directly for further assistance.
+
 Agent Path: ['HelpDeskCoordinator', 'Support']
 ```
+
+#### Event Log Analysis:
+When analyzing the events log from this query, we can see:
+
+1. First event: `HelpDeskCoordinator` agent receives the query and determines it's related to email access issues
+2. Action: The coordinator makes a function call to `transfer_to_agent` with the parameter `agent_name='Support'`
+3. Second event: The query is transferred to the `Support` agent
+4. The Support agent processes the request and generates a detailed troubleshooting response
+5. The response flows back through the chain to be delivered to the user
+
+This demonstrates how the coordinator intelligently identifies the query type and routes it to the appropriate specialist without requiring the user to manually select which department they need.
 
 ### **Billing Agent Query Example**
 
@@ -202,10 +241,42 @@ print(f"Agent Path: {billing_path}")
 Sample output:
 ```
 Query: I was charged twice for my subscription last month
+Response: I understand your concern about being charged twice for your subscription last month. This is definitely something we should address right away. Here's how we can help resolve this issue:
+
+1. First, I recommend checking your bank or credit card statement to confirm the exact dates and amounts of the duplicate charges.
+
+2. Visit your account page on our website and review your billing history. This will show you all transactions processed through our system.
+
+3. If you confirm that you were indeed charged twice for the same billing period, we can process a refund for the duplicate charge. 
+
+4. To request this refund, you can:
+   - Use the "Request Refund" option in your account settings
+   - Contact our billing department directly at billing@example.com
+   - Call our customer service line at 1-800-123-4567
+
+5. When contacting us, please have the following information ready:
+   - Your account information
+   - The dates of both charges
+   - Your transaction IDs (if available)
+
+We aim to process all refund requests within 3-5 business days, and the refunded amount should appear on your statement within 1-2 billing cycles, depending on your financial institution.
+
+I apologize for any inconvenience this has caused, and we'll make sure to investigate why this duplicate charge occurred to prevent it from happening again.
+
 Agent Path: ['HelpDeskCoordinator', 'Billing']
 ```
 
-This demonstrates how the coordinator agent intelligently routes different types of queries to the appropriate specialized agent.
+#### Event Log Analysis:
+The events log for this query reveals:
+
+1. First event: `HelpDeskCoordinator` receives the query about being "charged twice"
+2. The coordinator identifies billing-related keywords and financial context
+3. Action: The coordinator executes a function call to `transfer_to_agent` with the parameter `agent_name='Billing'`
+4. Second event: The query is transferred to the `Billing` agent
+5. The Billing agent processes the request and generates a response focused on refund procedures and billing support options
+6. The response is sent back through the chain to the user
+
+This routing happens automatically based on the semantic understanding of the query's content, showing how ADK's agent architecture can create intuitive user experiences without requiring explicit user direction.
 
 ---
 
@@ -253,8 +324,4 @@ The example provided illustrates just one of many possibilities. As you explore 
 **Sources**  
 This article is based on information from the official ADK documentation and related resources. For more details, refer to the [ADK Multi-Agent Systems page](https://google.github.io/adk-docs/agents/multi-agents/).
 
----
 
-### Notes on Mermaid Diagrams
-- **Rendering**: The Mermaid code blocks can be rendered into diagrams using tools like the Mermaid Live Editor or the Mermaid CLI.
-- **Platform Compatibility**: If publishing on platforms that do not support Mermaid directly (e.g., Medium), you can generate images from the Mermaid code and embed them in the article.
