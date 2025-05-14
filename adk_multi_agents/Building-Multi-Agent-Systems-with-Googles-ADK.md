@@ -211,16 +211,34 @@ If you continue to have problems after trying these steps, contact your email pr
 Agent Path: ['HelpDeskCoordinator', 'Support']
 ```
 
-#### Event Log Analysis:
-When analyzing the events log from this query, we can see:
+#### ADK Logs:
+```
+2025-05-14 08:42:01,296 - <<MultiAgentTest>> - INFO - Event: HelpDeskCoordinator, Actions: skip_summarization=None state_delta={} artifact_delta={} transfer_to_agent=None escalate=None requested_auth_configs={}
+2025-05-14 08:42:01,299 - <<MultiAgentTest>> - INFO - Event: HelpDeskCoordinator, Actions: skip_summarization=None state_delta={} artifact_delta={} transfer_to_agent='Support' escalate=None requested_auth_configs={}
+2025-05-14 08:42:01,299 - <<MultiAgentTest>> - INFO - Event: Support, Actions: skip_summarization=None state_delta={} artifact_delta={} transfer_to_agent=None escalate=None requested_auth_configs={}
+```
 
-1. First event: `HelpDeskCoordinator` agent receives the query and determines it's related to email access issues
-2. Action: The coordinator makes a function call to `transfer_to_agent` with the parameter `agent_name='Support'`
-3. Second event: The query is transferred to the `Support` agent
-4. The Support agent processes the request and generates a detailed troubleshooting response
-5. The response flows back through the chain to be delivered to the user
+#### Log Analysis:
+These ADK logs reveal the precise sequence of events and execution flow through the multi-agent system:
 
-This demonstrates how the coordinator intelligently identifies the query type and routes it to the appropriate specialist without requiring the user to manually select which department they need.
+1. **First log entry (Initial Coordinator Assessment):**
+   - `HelpDeskCoordinator` activates and begins processing the query
+   - `Actions` fields show all action parameters are initially `None` or empty
+   - `transfer_to_agent=None` indicates the coordinator is still evaluating the query
+   - This is the "thinking" phase where the LLM is analyzing the query content
+
+2. **Second log entry (Coordinator Decision):**
+   - Same `HelpDeskCoordinator` agent but with updated actions
+   - `transfer_to_agent='Support'` shows the critical decision point
+   - The coordinator has determined this is a technical support issue (password-related)
+   - This is the routing decision that directs the query to the specialized agent
+
+3. **Third log entry (Support Agent Activation):**
+   - `Support` agent is now active, indicating successful transfer
+   - All action fields are `None` because the Support agent will now generate its own response
+   - No further transfers are needed as we've reached the correct specialist
+
+This log demonstrates how ADK's hierarchical coordination enables intelligent task delegation, allowing specialized agents to handle specific types of queries efficiently without requiring the user to manually select which department they need.
 
 ### **Billing Agent Query Example**
 
@@ -266,17 +284,39 @@ I apologize for any inconvenience this has caused, and we'll make sure to invest
 Agent Path: ['HelpDeskCoordinator', 'Billing']
 ```
 
-#### Event Log Analysis:
-The events log for this query reveals:
+#### ADK Logs:
+```
+2025-05-14 08:43:15,778 - <<MultiAgentTest>> - INFO - Event: HelpDeskCoordinator, Actions: skip_summarization=None state_delta={} artifact_delta={} transfer_to_agent=None escalate=None requested_auth_configs={}
+2025-05-14 08:43:15,781 - <<MultiAgentTest>> - INFO - Event: HelpDeskCoordinator, Actions: skip_summarization=None state_delta={} artifact_delta={} transfer_to_agent='Billing' escalate=None requested_auth_configs={}
+2025-05-14 08:43:15,781 - <<MultiAgentTest>> - INFO - Event: Billing, Actions: skip_summarization=None state_delta={} artifact_delta={} transfer_to_agent=None escalate=None requested_auth_configs={}
+```
 
-1. First event: `HelpDeskCoordinator` receives the query about being "charged twice"
-2. The coordinator identifies billing-related keywords and financial context
-3. Action: The coordinator executes a function call to `transfer_to_agent` with the parameter `agent_name='Billing'`
-4. Second event: The query is transferred to the `Billing` agent
-5. The Billing agent processes the request and generates a response focused on refund procedures and billing support options
-6. The response is sent back through the chain to the user
+#### Log Analysis:
+These ADK logs reveal the internal execution path for the billing query:
 
-This routing happens automatically based on the semantic understanding of the query's content, showing how ADK's agent architecture can create intuitive user experiences without requiring explicit user direction.
+1. **First log entry (Initial Coordinator Processing):**
+   - `HelpDeskCoordinator` begins processing with timestamp `08:43:15,778`
+   - All action parameters are initially `None` or empty dictionaries
+   - This initial log shows the agent system in its starting state, where the coordinator is analyzing the input query
+
+2. **Second log entry (Routing Decision):**
+   - Same `HelpDeskCoordinator` but 3ms later at `08:43:15,781`
+   - `transfer_to_agent='Billing'` is the crucial routing decision
+   - The coordinator has identified financial/billing keywords ("charged twice", "subscription")
+   - This is exactly what differentiates this query from the support query in the previous example
+
+3. **Third log entry (Billing Agent Handling):**
+   - `Billing` agent is now active (at the same timestamp `08:43:15,781`)
+   - The billing specialist takes over responsibility for generating the response
+   - All action parameters are again `None` because this is the terminal agent for this query path
+
+By comparing these logs with the support query logs, we can observe:
+
+1. The exact same pattern of execution (coordinator assessment → routing decision → specialist handling)
+2. The only difference is the value of `transfer_to_agent` parameter ('Support' vs 'Billing')
+3. How quickly the routing decision happens (just 3ms from initial processing to routing)
+
+This routing happens automatically based on the semantic understanding of the query's content, showing how ADK's agent architecture creates intuitive user experiences without requiring explicit user direction. The logs provide a transparent view of this decision-making process.
 
 ---
 
@@ -323,5 +363,3 @@ The example provided illustrates just one of many possibilities. As you explore 
 
 **Sources**  
 This article is based on information from the official ADK documentation and related resources. For more details, refer to the [ADK Multi-Agent Systems page](https://google.github.io/adk-docs/agents/multi-agents/).
-
-
